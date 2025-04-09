@@ -1,0 +1,147 @@
+@model WebApp.ViewModels.RouteSearchViewModel
+
+<div class="container mt-5">
+    <!-- Card with percentage width -->
+    <div class="card shadow" style="width: 90%; margin: auto;">
+        <div class="card-header text-white" style="background-color: #1E387B; text-align: center">
+            <h2 class="mb-0">Search for Space Routes</h2>
+        </div>
+        <div class="card-body">
+            <form method="get" asp-action="Index" class="row g-3">
+                <!-- First Row: From and To -->
+                <div class="col-md-6">
+                    <label class="form-label">From:</label>
+                    <select name="origin" class="form-select">
+                        <option value="">-- Select Origin --</option>
+                        @foreach (var origin in Model.AvailableOrigins)
+                        {
+                            <option value="@origin" selected="@(origin == Model.Origin)">
+                                @origin
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">To:</label>
+                    <select name="destination" class="form-select">
+                        <option value="">-- Select Destination --</option>
+                        @foreach (var dest in Model.AvailableDestinations)
+                        {
+                            <option value="@dest" selected="@(dest == Model.Destination)">
+                                @dest
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <!-- Second Row: Company and Sort by -->
+                <div class="col-md-6">
+                    <label class="form-label">Company:</label>
+                    <input type="text" name="company" value="@Model.Company" class="form-control" placeholder="Any company" />
+                </div>
+
+                <div class="col-md-6">
+                    <label class="form-label">Sort by:</label>
+                    <select name="sortBy" class="form-select">
+                        <option value="">-- Default --</option>
+                        <option value="price" selected="@(Model.SortBy == "price")">Price</option>
+                        <option value="distance" selected="@(Model.SortBy == "distance")">Distance</option>
+                        <option value="time" selected="@(Model.SortBy == "time")">Travel Time</option>
+                    </select>
+                </div>
+
+                <!-- Third Row: Search Button -->
+                <div class="col-md-12 d-flex justify-content-center">
+                    <button type="submit" class="btn w-50" style="background-color: #1E387B; color: white">
+                        <i class="bi bi-search"></i> Search
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="mt-4">
+        @if (!Model.Results.Any())
+        {
+            <div class="alert alert-info">
+                <i class="bi bi-info-circle"></i> No routes found matching your criteria.
+            </div>
+        }
+        else
+        {
+            <!-- Table with the same width as the card -->
+            <div class="table-responsive" style="width: 90%; margin: auto;">
+                <table class="table table-hover table-striped" style="text-align: center">
+                    <thead style="--bs-table-bg: #1E387B; --bs-table-color: white">
+                    <tr>
+                        <th><i class="bi bi-geo-alt"></i> From</th>
+                        <th><i class="bi bi-geo-alt-fill"></i> To</th>
+                        <th>Distance (km)</th>
+                        <th>Company</th>
+                        <th>Price (€)</th>
+                        <th>Depart</th>
+                        <th>Arrive</th>
+                        <th>Travel Time</th>
+                        <th>Action</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var p in Model.Results)
+                    {
+                        <tr>
+                            <td class="fw-bold">@p.Leg!.RouteInfo!.From!.Name</td>
+                            <td class="fw-bold">@p.Leg.RouteInfo.To!.Name</td>
+                            <td>@p.Leg.RouteInfo.Distance.ToString("N0")</td>
+                            <td>
+                                <span class="badge bg-secondary text-white w-100">@p.Company!.Name</span>
+                            </td>
+                            <td class="text-success fw-bold">@p.Price</td>
+                            <td>@p.FlightStart</td>
+                            <td>@p.FlightEnd</td>
+                            <td>
+                                @{
+                                    var durationMinutes = (p.FlightEnd - p.FlightStart).TotalMinutes;
+                                    var hours = (int)(durationMinutes / 60);
+                                    var minutes = (int)(durationMinutes % 60);
+                                }
+                                <span class="badge bg-secondary">
+                                        @string.Format("{0:D2}h {1:D2}m", hours, minutes)
+                                    </span>
+                            </td>
+                            <td>
+                                <a asp-controller="Reservation" asp-action="Index"
+                                   asp-route-legId="@p.Leg.Id"
+                                   asp-route-providerId="@p.Id"
+                                   class="btn btn-sm btn-success">
+                                    <i class="bi bi-ticket-perforated"></i> Reserve
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>
+
+<!-- Add Bootstrap Icons -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
+
+<style>
+    .card {
+        border-radius: 10px;
+    }
+    .table {
+        font-size: 0.95rem;
+    }
+    
+    .table th {
+        white-space: nowrap;
+    }
+    .badge {
+        font-size: 0.85em;
+        padding: 0.35em 0.65em;
+    }
+</style>
