@@ -1,5 +1,6 @@
 html {
   font-size: 14px;
+  background-color: #F4F7FB;
 }
 
 @media (min-width: 768px) {
@@ -19,6 +20,7 @@ html {
 
 body {
   margin-bottom: 60px;
+  background-color: #F4F7FB;
 }
 
 .form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
