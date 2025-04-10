@@ -11,7 +11,7 @@ public class PricelistRepository(AppDbContext context) : IPricelistRepository
         
         var count = await context.Pricelists.CountAsync();
 
-        if (count >= 15)
+        if (count > 15)
         {
             var oldest = await context.Pricelists.OrderBy(p => p.Fetched).FirstAsync();
             context.Pricelists.Remove(oldest);
