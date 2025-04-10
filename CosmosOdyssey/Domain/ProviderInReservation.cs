@@ -1,9 +1,7 @@
 namespace Domain;
 
-public class ReservationProvider
+public class ReservationProvider : BaseEntity
 {
-    public Guid ReservationProviderId { get; set; }
-    
     public Guid ProviderId { get; set; }
     public Provider? Provider { get; set; }
     

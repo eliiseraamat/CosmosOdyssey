@@ -1,9 +1,7 @@
 namespace Domain;
 
-public class RouteInfo
+public class RouteInfo : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public Guid FromId { get; set; }
     public Planet? From { get; set; }
     

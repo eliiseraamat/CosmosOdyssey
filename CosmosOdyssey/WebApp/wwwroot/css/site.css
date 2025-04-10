@@ -34,3 +34,110 @@ thead {
   background-color: #1E387B;
   color: white;  /* Kergemaks loetavuseks, kui tekst jääb heledamaks */
 }
+
+.card.routes {
+  border-radius: 10px;
+  width: 90%; 
+  margin: auto;
+}
+
+.card-header.routes{
+  background-color: #1E387B; 
+  text-align: center
+}
+
+.table {
+  font-size: 0.95rem;
+  text-align: center
+}
+
+.table-responsive {
+  width: 90%; 
+  margin: auto;
+}
+
+.table thead {
+  --bs-table-bg: #1E387B; 
+  --bs-table-color: white
+}
+
+.table th {
+  white-space: nowrap;
+}
+
+.badge {
+  font-size: 0.85em;
+  padding: 0.35em 0.65em;
+}
+
+.card.reservation {
+  border-radius: 15px;
+  overflow: hidden;
+}
+
+.flight-details {
+  background-color: #f8f9fa;
+  height: 100%;
+}
+
+.flight-route {
+  position: relative;
+}
+
+.flight-route:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #dee2e6;
+  z-index: -1;
+}
+
+.distance-badge {
+  transform: translateY(10px);
+}
+
+.form-control-lg {
+  padding: 0.75rem 1rem;
+}
+
+.btn.blue {
+  background-color: #1E387B; 
+  color: white
+}
+
+.card-header.reservation {
+  --bs-card-cap-bg: #1E387B;
+}
+
+.flight-info {
+  background-color: #f8f9fa;
+  height: 100%;
+}
+
+.flight-route {
+  position: relative;
+}
+
+.flight-route:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: #dee2e6;
+  z-index: -1;
+}
+
+.icon-success {
+  animation: bounce 1s;
+}
+
+@keyframes bounce {
+   0%, 20%, 50%, 80%, 100% {transform: translateY(0);}
+   40% {transform: translateY(-20px);}
+   60% {transform: translateY(-10px);}
+}

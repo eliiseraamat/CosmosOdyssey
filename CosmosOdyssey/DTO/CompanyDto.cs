@@ -1,8 +1,8 @@
+using Domain;
+
 namespace DTO;
 
-public class CompanyDto
+public class CompanyDto : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public string Name { get; set; } = default!;
 }

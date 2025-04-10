@@ -45,17 +45,11 @@ namespace DAL.Migrations
                     b.Property<Guid>("RouteInfoId")
                         .HasColumnType("TEXT");
 
-                    b.Property<Guid?>("RouteInfoId1")
-                        .HasColumnType("TEXT");
-
                     b.HasKey("Id");
 
                     b.HasIndex("PricelistId");
 
-                    b.HasIndex("RouteInfoId")
-                        .IsUnique();
-
-                    b.HasIndex("RouteInfoId1");
+                    b.HasIndex("RouteInfoId");
 
                     b.ToTable("Legs");
                 });
@@ -152,7 +146,7 @@ namespace DAL.Migrations
 
             modelBuilder.Entity("Domain.ReservationProvider", b =>
                 {
-                    b.Property<Guid>("ReservationProviderId")
+                    b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("TEXT");
 
@@ -162,7 +156,7 @@ namespace DAL.Migrations
                     b.Property<Guid>("ReservationId")
                         .HasColumnType("TEXT");
 
-                    b.HasKey("ReservationProviderId");
+                    b.HasKey("Id");
 
                     b.HasIndex("ProviderId");
 
@@ -204,14 +198,10 @@ namespace DAL.Migrations
                         .IsRequired();
 
                     b.HasOne("Domain.RouteInfo", "RouteInfo")
-                        .WithOne()
-                        .HasForeignKey("Domain.Leg", "RouteInfoId")
+                        .WithMany("Legs")
+                        .HasForeignKey("RouteInfoId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-
-                    b.HasOne("Domain.RouteInfo", null)
-                        .WithMany("Legs")
-                        .HasForeignKey("RouteInfoId1");
 
                     b.Navigation("Pricelist");
 

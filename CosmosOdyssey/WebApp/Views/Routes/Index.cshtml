@@ -1,14 +1,19 @@
 @model WebApp.ViewModels.RouteSearchViewModel
 
+@if (!string.IsNullOrEmpty(Model.ErrorMessage))
+{
+    <div class="alert alert-danger">
+        @Model.ErrorMessage
+    </div>
+}
+
 <div class="container mt-5">
-    <!-- Card with percentage width -->
-    <div class="card shadow" style="width: 90%; margin: auto;">
-        <div class="card-header text-white" style="background-color: #1E387B; text-align: center">
+    <div class="card shadow routes">
+        <div class="card-header text-white routes">
             <h2 class="mb-0">Search for Space Routes</h2>
         </div>
         <div class="card-body">
             <form method="get" asp-action="Index" class="row g-3">
-                <!-- First Row: From and To -->
                 <div class="col-md-6">
                     <label class="form-label">From:</label>
                     <select name="origin" class="form-select">
@@ -34,8 +39,7 @@
                         }
                     </select>
                 </div>
-
-                <!-- Second Row: Company and Sort by -->
+                
                 <div class="col-md-6">
                     <label class="form-label">Company:</label>
                     <input type="text" name="company" value="@Model.Company" class="form-control" placeholder="Any company" />
@@ -50,10 +54,9 @@
                         <option value="time" selected="@(Model.SortBy == "time")">Travel Time</option>
                     </select>
                 </div>
-
-                <!-- Third Row: Search Button -->
+                
                 <div class="col-md-12 d-flex justify-content-center">
-                    <button type="submit" class="btn w-50" style="background-color: #1E387B; color: white">
+                    <button type="submit" class="btn w-50 blue">
                         <i class="bi bi-search"></i> Search
                     </button>
                 </div>
@@ -70,10 +73,9 @@
         }
         else
         {
-            <!-- Table with the same width as the card -->
-            <div class="table-responsive" style="width: 90%; margin: auto;">
-                <table class="table table-hover table-striped" style="text-align: center">
-                    <thead style="--bs-table-bg: #1E387B; --bs-table-color: white">
+            <div class="table-responsive">
+                <table class="table table-hover table-striped">
+                    <thead>
                     <tr>
                         <th><i class="bi bi-geo-alt"></i> From</th>
                         <th><i class="bi bi-geo-alt-fill"></i> To</th>
@@ -106,8 +108,8 @@
                                     var minutes = (int)(durationMinutes % 60);
                                 }
                                 <span class="badge bg-secondary">
-                                        @string.Format("{0:D2}h {1:D2}m", hours, minutes)
-                                    </span>
+                                    @($"{hours:D2}h {minutes:D2}m")
+                                </span>
                             </td>
                             <td>
                                 <a asp-controller="Reservation" asp-action="Index"
@@ -125,23 +127,3 @@
         }
     </div>
 </div>
-
-<!-- Add Bootstrap Icons -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.1/font/bootstrap-icons.css">
-
-<style>
-    .card {
-        border-radius: 10px;
-    }
-    .table {
-        font-size: 0.95rem;
-    }
-    
-    .table th {
-        white-space: nowrap;
-    }
-    .badge {
-        font-size: 0.85em;
-        padding: 0.35em 0.65em;
-    }
-</style>

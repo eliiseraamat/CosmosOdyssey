@@ -2,10 +2,8 @@ using System.ComponentModel.DataAnnotations;
 
 namespace Domain;
 
-public class Reservation
+public class Reservation : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     [MaxLength(128)]
     public string FirstName { get; set; } = default!;
     

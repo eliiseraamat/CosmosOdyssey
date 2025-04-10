@@ -1,9 +1,9 @@
+using Domain;
+
 namespace DTO;
 
-public class PricelistDto
+public class PricelistDto : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public DateTime ValidUntil { get; set; }
     
     public List<LegDto> Legs { get; set; } = default!;

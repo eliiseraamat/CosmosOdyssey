@@ -1,9 +1,7 @@
 namespace Domain;
 
-public class Pricelist
+public class Pricelist : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public DateTime ValidUntil { get; set; }
     
     public DateTime Fetched { get; set; }

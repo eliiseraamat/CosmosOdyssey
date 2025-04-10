@@ -1,9 +1,9 @@
+using Domain;
+
 namespace DTO;
 
-public class RouteInfoDto
+public class RouteInfoDto : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public PlanetDto From { get; set; } = default!;
     
     public PlanetDto To { get; set; } = default!;

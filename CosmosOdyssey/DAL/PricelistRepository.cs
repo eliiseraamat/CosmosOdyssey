@@ -43,76 +43,17 @@ public class PricelistRepository(AppDbContext context) : IPricelistRepository
         context.Planets.Add(planet);
         return planet;
     }
-
-    public async Task<List<Leg>> GetFilteredLegsAsync(string? origin, string? destination, string? company, string? sortBy)
-    {
-        var now = DateTime.UtcNow;
-
-        var query = context.Legs
-            .Include(l => l.RouteInfo)
-            .ThenInclude(r => r!.From)
-            .Include(l => l.RouteInfo)
-            .ThenInclude(r => r!.To)
-            .Include(l => l.Providers)!
-            .ThenInclude(p => p.Company)
-            .Include(l => l.Pricelist)
-            .Where(l => l.Pricelist!.ValidUntil > now)
-            .AsQueryable();
-
-        if (!string.IsNullOrWhiteSpace(origin))
-        {
-            query = query.Where(l => l.RouteInfo!.From!.Name == origin);
-        }
-
-        if (!string.IsNullOrWhiteSpace(destination))
-        {
-            query = query.Where(l => l.RouteInfo!.To!.Name == destination);
-        }
-
-        if (!string.IsNullOrWhiteSpace(company))
-        {
-            query = query.Where(l => l.Providers!.Any(p => EF.Functions.Like(p.Company!.Name, $"%{company}%")));
-        }
-
-        var legs = await query.AsNoTracking().ToListAsync();
-
-        // Apply global sorting across all results
-        IOrderedEnumerable<Leg> sortedLegs = sortBy?.ToLower() switch
-        {
-            "price" => legs
-                .OrderBy(l => l.Providers?
-                    .Where(p => p != null)
-                    .Select(p => (double)p!.Price)
-                    .DefaultIfEmpty(double.MaxValue)
-                    .Min() ?? double.MaxValue),
-                
-            "distance" => legs
-                .OrderBy(l => l.RouteInfo?.Distance ?? double.MaxValue),
-            
-            "time" => legs
-                .OrderBy(l => l.Providers?
-                    .Where(p => p != null)
-                    .Select(p => (p!.FlightEnd - p.FlightStart).TotalMinutes)
-                    .DefaultIfEmpty(double.MaxValue)
-                    .Min() ?? double.MaxValue),
-            
-            _ => legs.OrderBy(l => 0) // No sorting
-        };
-
-        return sortedLegs.ToList();
-
-    }
     
     public async Task<List<Provider>> GetFilteredProvidersAsync(
-        string? origin, string? destination, string? company, string? sortBy)
+        string? origin, string? destination, string? company)
     {
         var now = DateTime.UtcNow;
 
         var query = context.Providers
             .Include(p => p.Company)
-            .Include(p => p.Leg)!.ThenInclude(l => l!.RouteInfo)!.ThenInclude(r => r!.From)
-            .Include(p => p.Leg)!.ThenInclude(l => l!.RouteInfo)!.ThenInclude(r => r!.To)
-            .Include(p => p.Leg)!.ThenInclude(l => l!.Pricelist)
+            .Include(p => p.Leg).ThenInclude(l => l!.RouteInfo).ThenInclude(r => r!.From)
+            .Include(p => p.Leg).ThenInclude(l => l!.RouteInfo).ThenInclude(r => r!.To)
+            .Include(p => p.Leg).ThenInclude(l => l!.Pricelist)
             .Where(p => p.Leg != null && p.Leg.Pricelist!.ValidUntil > now)
             .AsNoTracking();
 
@@ -131,23 +72,7 @@ public class PricelistRepository(AppDbContext context) : IPricelistRepository
             query = query.Where(p => p.Company!.Name.ToLower().Contains(company.ToLower()));
         }
         
-        var providers = await query.ToListAsync();
-        
-        foreach (var p in providers)
-        {
-            var duration = (p.FlightEnd - p.FlightStart).TotalMinutes;
-            Console.WriteLine($"{p.Company?.Name} - {duration} min - {p.FlightStart:HH:mm} → {p.FlightEnd:HH:mm}");
-        }
-
-        providers = sortBy?.ToLower() switch
-        {
-            "price" => providers.OrderBy(p => (double)p.Price).ToList(),
-            "time" => providers.OrderBy(p => (p.FlightEnd - p.FlightStart).TotalMinutes).ToList(),
-            "distance" => providers.OrderBy(p => p.Leg!.RouteInfo!.Distance).ToList(),
-            _ => providers
-        };
-
-        return providers;
+        return await query.ToListAsync();
     }
     
     public async Task<List<string>> GetAvailableOriginsAsync()
@@ -179,26 +104,19 @@ public class PricelistRepository(AppDbContext context) : IPricelistRepository
             .OrderBy(n => n)
             .ToListAsync();
     }
-
-    public async Task<Leg?> GetLegAsync(Guid id)
-    {
-        return await context.Legs.FirstOrDefaultAsync(l => l.Id == id);
-    }
     
     public async Task<Provider?> GetProviderAsync(Guid legId, Guid providerId)
     { 
-        var provider = await context.Providers
+        return await context.Providers
             .Include(p => p.Leg)
             .ThenInclude(l => l!.Pricelist)
-            .Include(p => p.Leg) // Include Leg
+            .Include(p => p.Leg)
             .ThenInclude(l => l!.RouteInfo)
             .ThenInclude(r => r!.From)
             .Include(p => p.Leg)
             .ThenInclude(l => l!.RouteInfo)
             .ThenInclude(r => r!.To)
-            .Include(p => p.Company) // Include Company
+            .Include(p => p.Company)
             .FirstOrDefaultAsync(p => p.Leg!.Id == legId && p.Id == providerId);
-
-        return provider;
     }
 }

@@ -95,8 +95,7 @@ namespace DAL.Migrations
                 {
                     Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     RouteInfoId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    PricelistId = table.Column<Guid>(type: "TEXT", nullable: false),
-                    RouteInfoId1 = table.Column<Guid>(type: "TEXT", nullable: true)
+                    PricelistId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -113,11 +112,6 @@ namespace DAL.Migrations
                         principalTable: "RouteInfos",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
-                    table.ForeignKey(
-                        name: "FK_Legs_RouteInfos_RouteInfoId1",
-                        column: x => x.RouteInfoId1,
-                        principalTable: "RouteInfos",
-                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -152,13 +146,13 @@ namespace DAL.Migrations
                 name: "ReservationProviders",
                 columns: table => new
                 {
-                    ReservationProviderId = table.Column<Guid>(type: "TEXT", nullable: false),
+                    Id = table.Column<Guid>(type: "TEXT", nullable: false),
                     ProviderId = table.Column<Guid>(type: "TEXT", nullable: false),
                     ReservationId = table.Column<Guid>(type: "TEXT", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_ReservationProviders", x => x.ReservationProviderId);
+                    table.PrimaryKey("PK_ReservationProviders", x => x.Id);
                     table.ForeignKey(
                         name: "FK_ReservationProviders_Providers_ProviderId",
                         column: x => x.ProviderId,
@@ -181,13 +175,7 @@ namespace DAL.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_Legs_RouteInfoId",
                 table: "Legs",
-                column: "RouteInfoId",
-                unique: true);
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Legs_RouteInfoId1",
-                table: "Legs",
-                column: "RouteInfoId1");
+                column: "RouteInfoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Providers_CompanyId",

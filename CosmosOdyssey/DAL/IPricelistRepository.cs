@@ -1,5 +1,4 @@
 using Domain;
-using DTO;
 
 namespace DAL;
 
@@ -12,17 +11,13 @@ public interface IPricelistRepository
     Task<Company> GetOrCreateCompanyAsync(Guid id, string name);
     
     Task<Planet> GetOrCreatePlanetAsync(Guid id, string name);
-    
-    Task<List<Leg>> GetFilteredLegsAsync(string? origin, string? destination, string? companyName, string? sortBy);
 
     Task<List<string>> GetAvailableOriginsAsync();
 
     Task<List<string>> GetAvailableDestinationsAsync();
 
-    Task<Leg?> GetLegAsync(Guid id);
-
     Task<List<Provider>> GetFilteredProvidersAsync(
-        string? origin, string? destination, string? company, string? sortBy);
+        string? origin, string? destination, string? company);
 
     Task<Provider?> GetProviderAsync(Guid legId, Guid providerId);
 }

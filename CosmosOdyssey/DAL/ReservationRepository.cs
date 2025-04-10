@@ -3,22 +3,13 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DAL;
 
-public class ReservationRepository : IReservationRepository
+public class ReservationRepository(AppDbContext context, IPricelistRepository pricelistRepository)
+    : IReservationRepository
 {
-    private readonly AppDbContext _context;
-    private readonly IPricelistRepository _pricelistRepository;
-
-    public ReservationRepository(AppDbContext context, IPricelistRepository pricelistRepository)
-    {
-        _context = context;
-        _pricelistRepository = pricelistRepository;
-    }
-
     public async Task<Reservation> CreateReservationAsync(Guid legId, Guid providerId, string firstName, string lastName)
     {
-        var provider = await _pricelistRepository.GetProviderAsync(legId, providerId);
-
-        // Create the reservation
+        var provider = await pricelistRepository.GetProviderAsync(legId, providerId);
+        
         var reservation = new Reservation
         {
             FirstName = firstName,
@@ -26,8 +17,7 @@ public class ReservationRepository : IReservationRepository
             TotalPrice = provider!.Price,
             TotalTravelTime = provider.FlightEnd - provider.FlightStart,
         };
-
-        // Create and link ReservationProvider
+        
         var reservationProvider = new ReservationProvider
         {
             ProviderId = providerId,
@@ -35,17 +25,16 @@ public class ReservationRepository : IReservationRepository
         };
 
         reservation.ReservationProviders = new List<ReservationProvider> { reservationProvider };
-
-        // Add the reservation and save changes
-        _context.Reservations.Add(reservation);
-        await _context.SaveChangesAsync();
+        
+        context.Reservations.Add(reservation);
+        await context.SaveChangesAsync();
 
         return reservation;
     }
 
     public async Task<Reservation?> GetReservationByIdAsync(Guid reservationId)
     {
-        return await _context.Reservations
+        return await context.Reservations
             .Include(r => r.ReservationProviders)!
             .ThenInclude(p => p.Provider)
             .ThenInclude(p => p!.Leg)

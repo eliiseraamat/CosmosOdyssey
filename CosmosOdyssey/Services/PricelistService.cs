@@ -7,54 +7,52 @@ using Microsoft.Extensions.Hosting;
 
 namespace Services;
 
-public class PricelistService : BackgroundService
+public class PricelistService(IServiceProvider serviceProvider, HttpClient httpClient) : BackgroundService
 {
-    private IServiceProvider _serviceProvider;
-    private HttpClient _httpClient;
-    
     private const string ApiUrl = "https://cosmosodyssey.azurewebsites.net/api/v1.0/TravelPrices";
     private static readonly TimeSpan PollInterval = TimeSpan.FromMinutes(1);
-    
-    public PricelistService(IServiceProvider serviceProvider, HttpClient httpClient)
-    {
-        _serviceProvider = serviceProvider;
-        _httpClient = httpClient;
-    }
-    
+    private DateTime? _lastUpdatedTime;
+
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
-                using var scope = _serviceProvider.CreateScope();
-                var repo = scope.ServiceProvider.GetRequiredService<IPricelistRepository>();
+                Console.WriteLine("------");
+                Console.WriteLine(_lastUpdatedTime);
+                if (_lastUpdatedTime == null || _lastUpdatedTime <= DateTime.UtcNow)
+                {
+                    using var scope = serviceProvider.CreateScope();
+                    var repo = scope.ServiceProvider.GetRequiredService<IPricelistRepository>();
                 
-                var response = await _httpClient.GetAsync(ApiUrl, stoppingToken);
-                response.EnsureSuccessStatusCode();
+                    var response = await httpClient.GetAsync(ApiUrl, stoppingToken);
+                    response.EnsureSuccessStatusCode();
 
-                var json = await response.Content.ReadAsStringAsync(stoppingToken);
-                var dto = JsonSerializer.Deserialize<PricelistDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+                    var json = await response.Content.ReadAsStringAsync(stoppingToken);
+                    var dto = JsonSerializer.Deserialize<PricelistDto>(json, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
                 
-                if (dto == null)
-                {
-                    Console.WriteLine("API response was empty.");
-                    continue;
-                }
-                
-                Console.WriteLine(dto.Id);
-                if (!await repo.ExistsAsync(dto.Id))
-                {
-                    var entity = await ConvertDtoToEntity(dto, repo); // oma mapperi meetod
-                    await repo.AddPricelistAsync(entity);
+                    if (dto == null)
+                    {
+                        continue;
+                    }
+                    
+                    if (!await repo.ExistsAsync(dto.Id))
+                    {
+                        var entity = await ConvertDtoToEntity(dto, repo);
+                        await repo.AddPricelistAsync(entity);
+                        
+                        _lastUpdatedTime = dto.ValidUntil;
+                        Console.WriteLine(".......");
+                        Console.WriteLine(_lastUpdatedTime);
+                    }
                 }
             }
             catch (Exception ex)
             {
                 Console.WriteLine($"Error fetching weather data: {ex.Message}");
             }
-
-            // Wait 5 minutes before next fetch
+            
             await Task.Delay(PollInterval, stoppingToken);
         }
     }
@@ -71,11 +69,9 @@ public class PricelistService : BackgroundService
 
         foreach (var legDto in dto.Legs)
         {
-            // Kontrolli planeete andmebaasist (From ja To)
             var fromPlanet = await repo.GetOrCreatePlanetAsync(legDto.RouteInfo.From.Id, legDto.RouteInfo.From.Name);
             var toPlanet = await repo.GetOrCreatePlanetAsync(legDto.RouteInfo.To.Id, legDto.RouteInfo.To.Name);
-
-            // Kontrolli RouteInfo
+            
             var routeInfo = new RouteInfo
             {
                 Id = legDto.RouteInfo.Id,

@@ -1,11 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Domain;
 
-public class Provider
+public class Provider : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public Guid CompanyId { get; set; }
     public Company? Company { get; set; }
     

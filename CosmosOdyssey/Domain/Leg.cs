@@ -1,11 +1,7 @@
-using System.ComponentModel.DataAnnotations;
-
 namespace Domain;
 
-public class Leg
+public class Leg : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public Guid RouteInfoId { get; set; }
     public RouteInfo? RouteInfo { get; set; }
     

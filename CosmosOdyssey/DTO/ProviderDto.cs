@@ -1,9 +1,9 @@
+using Domain;
+
 namespace DTO;
 
-public class ProviderDto
+public class ProviderDto : BaseEntity
 {
-    public Guid Id { get; set; }
-    
     public CompanyDto Company { get; set; } = default!;
     
     public decimal Price { get; set; }

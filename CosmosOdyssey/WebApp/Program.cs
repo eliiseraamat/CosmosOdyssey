@@ -21,6 +21,7 @@ builder.Services.AddRazorPages();
 builder.Services.AddHttpClient();
 builder.Services.AddScoped<IPricelistRepository, PricelistRepository>();
 builder.Services.AddScoped<IReservationRepository, ReservationRepository>();
+builder.Services.AddScoped<IRouteSortingService, RouteSortingService>();
 builder.Services.AddHostedService<PricelistService>();
 
 var app = builder.Build();
